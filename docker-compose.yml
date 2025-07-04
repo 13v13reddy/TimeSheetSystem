@@ -1,0 +1,44 @@
+# docker-compose.yml
+# This file orchestrates the deployment of our application using Docker.
+# It defines two services: the PostgreSQL database and our Spring Boot backend.
+# The database uses a persistent volume to ensure data is not lost on restart.
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: timesheet-db
+    ports:
+      - "5432:5432" # Expose port for local connection if needed
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistent data volume
+    environment:
+      POSTGRES_DB: timesheet_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123 # Use a strong password, managed by config/secrets
+    restart: unless-stopped
+
+  # Spring Boot Backend Service
+  backend:
+    build: . # Build from the Dockerfile in the current directory
+    container_name: timesheet-backend
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      # Spring Datasource Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/timesheet_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password123
+      # --- FIX ADDED HERE ---
+      # This property tells Hibernate to automatically update the database schema (create tables, etc.) on startup.
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Other environment variables for the application
+      JWT_SECRET: "your-super-secret-key-that-is-long-and-secure-and-should-be-in-config-yaml"
+      JWT_EXPIRATION_MS: 86400000 # 24 hours
+    restart: on-failure
+
+volumes:
+  postgres_data: # Defines the named volume for data persistence

@@ -1,0 +1,18 @@
+/*
+  This is the main CSS entry point.
+  These three directives are required for Tailwind CSS to work.
+  They inject Tailwind's base styles, component classes, and utility classes into your CSS.
+  There should be no other CSS rules above these lines.
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  You can add custom base styles or component overrides below if needed,
+  but for this project, it's not required.
+*/
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
